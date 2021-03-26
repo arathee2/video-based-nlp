@@ -2,4 +2,7 @@
 A web application that provides insights about natural language used in a video.
 
 # Running the app.
-To run the app, clone this repo and execute `make` in the shell.
+Do the following to run the app.
+1. Clone this repo and `cd` into it.
+2. Source the virtual environment: `source ./.venv/bin/activate`.
+3. Execute: `make`.
