@@ -4,10 +4,10 @@ app = flask.Flask(__name__)
 
 @app.route('/', methods = ["GET", "POST"])
 def home():
+    DEFAULT_URL = "https://youtu.be/KE-hrWTgDjk"
     if flask.request.method == "POST":
-        return flask.render_template("print-url.html", url=flask.request.form['default_url'])
+        return flask.render_template("print-url.html", url=DEFAULT_URL)
     else:
-        DEFAULT_URL = "https://youtu.be/KE-hrWTgDjk"
         return flask.render_template("home.html", default_url=DEFAULT_URL)
 
 
