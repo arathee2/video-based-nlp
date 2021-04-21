@@ -20,7 +20,7 @@ Default output format [None]: json
 
 ```bash
 git clone https://github.com/arathee2/video-based-nlp.git
-cd video-based-nlp.git
+cd video-based-nlp
 make
 ```
 
