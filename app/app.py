@@ -65,12 +65,10 @@ def home():
         extension = 'mp3'
         filenames = get_filenames(directory, extension)
         bucket = 'audio-from-video-based-nlp'
+        success = []
         for filename in filenames:
-            success = upload_file(filename, bucket)
-        if success:
-            return f"<h3> Video uploaded successfully to s3 bucket: {bucket}.</h3>"
-        else:
-            return f"<h3> Video NOT uploaded successfully to s3 bucket: {bucket}.</h3>"
+            success.append(upload_file(filename, bucket))
+        return f"<h3> {sum(success) / len(success)} videos uploaded successfully to s3 bucket: {bucket}.</h3>"
     else:
         return flask.render_template("home.html", default_url=DEFAULT_URL)
 
