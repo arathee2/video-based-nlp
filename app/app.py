@@ -1,5 +1,4 @@
 import os
-import glob
 import flask
 import youtube_dl
 import boto3
@@ -21,10 +20,7 @@ def get_filenames(directory, extension=None):
     
     """
     os.chdir(directory)
-    
     filenames = [f for f in os.listdir('.') if os.path.isfile(f)]
-    print(f"Names of all files found in {directory} are:\{filenames}")
-    
     if extension is not None:
         filenames = [file for file in filenames if file.endswith(f".{extension}")]
     return filenames
@@ -74,19 +70,14 @@ def home():
     if flask.request.method == "POST":
         # download mp3 to project root directory i.e. same level as `app`.
         youtube_download(flask.request.form['url'])
-        
-        print(f"Current working directory when executing app.py: {os.getcwd()}")
-        
+
         # upload all mp3 files to s3
-        directory = "./"
-        extension = 'mp3'
-        filenames = get_filenames(directory, extension)
-        print(f"{len(filenames)} MP3 files found:\n{filenames}")
-        bucket = 'audio-from-video-based-nlp'
-        success = []
-        for filename in filenames:
-            success.append(upload_file(filename, bucket))
-        return f"<h3> {sum(success) / len(success)} videos uploaded successfully to s3 bucket: {bucket}.</h3>"
+        MP3_DIRECTORY = "./"
+        EXTENSION = 'mp3'
+        filenames = get_filenames(MP3_DIRECTORY, EXTENSION)
+        BUCKET = 'audio-from-video-based-nlp'
+        file_uploaded = [upload_file(filename, BUCKET) for filename in filenames]
+        return f"<h3> {int(sum(file_uploaded) / len(file_uploaded))} videos uploaded successfully to s3 bucket: {BUCKET}.</h3>"
     else:
         return flask.render_template("home.html", default_url=DEFAULT_URL)
 
