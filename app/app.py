@@ -10,6 +10,10 @@ def get_filenames(directory, extension='mp3'):
     """
     filenames = []
     os.chdir(directory)
+    
+    all_files = [f for f in os.listdir('.') if os.path.isfile(f)]
+    print(f"Names of all files found in {directory} are:\{all_files}")
+    
     for file in glob.glob(f"*.{extension}"):
         filenames.append(file)
     return filenames
@@ -60,8 +64,10 @@ def home():
         # download mp3 to project root directory i.e. same level as `app`.
         youtube_download(flask.request.form['url'])
         
+        print(f"Current working directory when executing app.py: {os.getcwd()}")
+        
         # upload all mp3 files to s3
-        directory = "../"
+        directory = "./"
         extension = 'mp3'
         filenames = get_filenames(directory, extension)
         print(f"{len(filenames)} MP3 files found:\n{filenames}")
