@@ -64,6 +64,7 @@ def home():
         directory = "../"
         extension = 'mp3'
         filenames = get_filenames(directory, extension)
+        print(f"{len(filenames)} MP3 files found:\n{filenames}")
         bucket = 'audio-from-video-based-nlp'
         success = []
         for filename in filenames:
