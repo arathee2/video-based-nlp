@@ -28,7 +28,7 @@ def youtube_download(url):
     }
     
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        #ydl.download([url])
+        ydl.download([url])
 
 def upload_file(file_name, bucket, object_name=None):
     """Upload a file to an S3 bucket
