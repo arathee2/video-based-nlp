@@ -4,18 +4,29 @@ import flask
 import youtube_dl
 import boto3
 
-def get_filenames(directory, extension='mp3'):
+def get_filenames(directory, extension=None):
     """ 
-    Return all filenames in a directory for an arbitrary extension.
+    Return all filenames in a directory with an arbitrary extension.
+    
+    Parameters:
+    -----------
+    directory: A string representing absolute or relative path.
+    extension: Extension that you want to look for. E.g. 'mp3'
+               Returns all files in current directory if no extension is None
+               default=None
+    
+    Returns:
+    --------
+    A list with filenames that match the extension in directory.
+    
     """
-    filenames = []
     os.chdir(directory)
     
-    all_files = [f for f in os.listdir('.') if os.path.isfile(f)]
-    print(f"Names of all files found in {directory} are:\{all_files}")
+    filenames = [f for f in os.listdir('.') if os.path.isfile(f)]
+    print(f"Names of all files found in {directory} are:\{filenames}")
     
-    for file in glob.glob(f"*.{extension}"):
-        filenames.append(file)
+    if extension is not None:
+        filenames = [file for file in filenames if file.endswith(f".{extension}")]
     return filenames
     
 def youtube_download(url):
