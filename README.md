@@ -1,8 +1,11 @@
-# video-based-nlp
+# Video-based NLP
+
 A web application that provides insights about natural language used in a video.
 
-# Running the app.
-Do the following to run the app.
-1. Clone this repo and `cd` into it.
-2. Source the virtual environment: `source ./.venv/bin/activate`.
-3. Execute: `make`.
+# Quickstart
+
+```bash
+git clone https://github.com/arathee2/video-based-nlp.git
+cd video-based-nlp.git
+make
+```
