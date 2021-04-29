@@ -4,6 +4,9 @@ import youtube_dl
 import boto3
 from urllib import parse
 import hashlib
+from boto3.dynamodb.conditions import Key
+import pandas as pd
+import time
 
 def hash_filename(url):
     video_id = parse.urlparse(url).query
@@ -68,23 +71,67 @@ def upload_file(file_name, bucket, object_name=None):
 
     return True
 
+def pull_sentiments(key):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('transcribe-audio-project-ResultsDDBtable-UYEWCZ84K563')
+    
+    response = table.scan(FilterExpression = Key('partitionKey').begins_with(key))['Items']
+    df = pd.DataFrame(response, index = [0])
+    if df.empty:
+        return None
+    else:
+        return df[['Neutral', 'Positive', 'Negative', 'Mixed', 'Sentiment']]
+        
+def file_exists(hashed_filename):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('transcribe-audio-project-ResultsDDBtable-UYEWCZ84K563')
+    
+def process_sentiment(hashed_filename):
+    sentiments = pull_sentiments(hashed_filename)
+    while sentiments is None:
+        time.sleep(20)
+        sentiments = pull_sentiments(hashed_filename)
+    return sentiments
+
+def delete_downloads():
+    downloaded_mp3s = [file for file in os.listdir() if file.endswith(".mp3")]
+    for file in downloaded_mp3s:
+    	os.remove(file)
+
 app = flask.Flask(__name__)
 
 @app.route('/', methods = ["GET", "POST"])
 def home():
     DEFAULT_URL = "https://youtu.be/9MHYHgh4jYc"
     if flask.request.method == "POST":
-        # download mp3 to project root directory i.e. same level as `app`.
-        youtube_download(flask.request.form['url'])
-
-        # upload all mp3 files to s3
-        MP3_DIRECTORY = "./"
-        EXTENSION = 'mp3'
-        filename = get_filenames(MP3_DIRECTORY, EXTENSION)[0]
-        hashed_filename = hash_filename(flask.request.form['url'])
-        BUCKET = 'bucket-for-audio-1234'
-        file_uploaded = upload_file(filename, BUCKET, hashed_filename + ".mp3")  # pass filename_hash
-        return f"<h3> {int(sum(file_uploaded) / len(file_uploaded))} videos uploaded successfully to s3 bucket: {BUCKET}.</h3>"
+        url = flask.request.form['url']
+        hashed_filename = hash_filename(url) + ".mp3"
+        sentiments = pull_sentiments(hashed_filename)
+        if sentiments is None:
+            # download mp3 to project root directory i.e. same level as `app`.
+            youtube_download(url)
+    
+            # upload all mp3 files to s3
+            MP3_DIRECTORY = "./"
+            EXTENSION = 'mp3'
+            filename = get_filenames(MP3_DIRECTORY, EXTENSION)[0]
+            BUCKET = 'bucket-for-audio-1234'
+            file_uploaded = upload_file(filename, BUCKET, hashed_filename)  # pass filename_hash
+            delete_downloads()
+            if file_uploaded:
+                print(f"<h3>Video uploaded successfully to s3 bucket: {BUCKET}.</h3>")
+                print("Calculating Sentiments")
+                sentiments = process_sentiment(hashed_filename)
+                print("DONE")
+                print(sentiments)
+                return f"happy face"
+            else:
+                print(f"<h3>Video could not be processed!</h3>")
+                return f"sad face"
+        else:
+            print("Retrieving Sentiments\n")
+            print(sentiments)
+            return f"Some junk here"
     else:
         return flask.render_template("home.html", default_url=DEFAULT_URL)
 
