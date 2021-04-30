@@ -133,5 +133,9 @@ dmypy.json
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
-# macbook stuff
+# mac os stuff
 .DS_Store
+
+# downloaded audio files
+*.m4a
+*.mp3
